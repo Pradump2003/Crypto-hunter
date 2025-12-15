@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Homepage from "./pages/Homepage";
+import Homepage from "./pages/HomePage";
 import CoinPage from "./pages/CoinPage";
 import Header from "./components/Header";
 
