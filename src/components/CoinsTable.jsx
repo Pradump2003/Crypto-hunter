@@ -82,7 +82,8 @@ const CoinsTable = () => {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
-          <thead className="bg-yellow-400 text-black">
+          {/* Table Head → Hidden on mobile */}
+          <thead className="bg-yellow-400 text-black hidden sm:table-header-group">
             <tr>
               <th className="text-left p-4 rounded-tl-lg">Coin</th>
               <th className="text-right p-4">Price</th>
@@ -99,10 +100,21 @@ const CoinsTable = () => {
                 <tr
                   key={coin.id}
                   onClick={() => navigate(`/coins/${coin.id}`)}
-                  className="bg-[#16171a] hover:bg-[#131111] cursor-pointer border-b border-gray-700"
+                  className="
+              block sm:table-row
+              bg-[#16171a] hover:bg-[#131111]
+              cursor-pointer border-b border-gray-700
+              rounded-lg sm:rounded-none
+              mb-4 sm:mb-0
+            "
                 >
-                  <td className="p-4 flex items-center gap-4">
-                    <img src={coin.image} alt={coin.name} className="h-16" />
+                  {/* Coin */}
+                  <td className="p-4 flex items-center gap-4 sm:flex sm:items-center">
+                    <img
+                      src={coin.image}
+                      alt={coin.name}
+                      className="h-12 sm:h-16"
+                    />
                     <div>
                       <div className="uppercase font-semibold">
                         {coin.symbol}
@@ -111,22 +123,37 @@ const CoinsTable = () => {
                     </div>
                   </td>
 
-                  <td className="p-4 text-right">
-                    {symbol} {numberWithCommas(coin.current_price.toFixed(2))}
+                  {/* Price */}
+                  <td className="p-4 sm:text-right flex justify-between sm:table-cell">
+                    <span className="sm:hidden text-gray-400">Price</span>
+                    <span>
+                      {symbol} {numberWithCommas(coin.current_price.toFixed(2))}
+                    </span>
                   </td>
 
+                  {/* 24h Change */}
                   <td
-                    className={`p-4 text-right font-medium ${
+                    className={`p-4 sm:text-right font-medium flex justify-between sm:table-cell ${
                       profit ? "text-green-400" : "text-red-500"
                     }`}
                   >
-                    {profit && "+"}
-                    {coin.price_change_percentage_24h.toFixed(2)}%
+                    <span className="sm:hidden text-gray-400">24h Change</span>
+                    <span>
+                      {profit && "+"}
+                      {coin.price_change_percentage_24h.toFixed(2)}%
+                    </span>
                   </td>
 
-                  <td className="p-4 text-right">
-                    {symbol}{" "}
-                    {numberWithCommas(coin.market_cap.toString().slice(0, -6))}M
+                  {/* Market Cap */}
+                  <td className="p-4 sm:text-right flex justify-between sm:table-cell">
+                    <span className="sm:hidden text-gray-400">Market Cap</span>
+                    <span>
+                      {symbol}{" "}
+                      {numberWithCommas(
+                        coin.market_cap.toString().slice(0, -6)
+                      )}
+                      M
+                    </span>
                   </td>
                 </tr>
               );
@@ -136,11 +163,14 @@ const CoinsTable = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center items-center gap-3 mt-8 text-yellow-400">
+      <div className="flex justify-center items-center gap-1 sm:gap-3 mt-6 sm:mt-8 text-yellow-400 text-xs sm:text-base">
+        {/* Prev */}
         <button
           disabled={page === 1}
           onClick={() => setPage(page - 1)}
-          className="px-3 py-1 rounded hover:bg-yellow-400 hover:text-black disabled:opacity-40"
+          className="px-2 py-1 sm:px-3 sm:py-1 rounded
+               hover:bg-yellow-400 hover:text-black
+               disabled:opacity-40"
         >
           ‹
         </button>
@@ -151,13 +181,16 @@ const CoinsTable = () => {
           if (
             pageNum === 1 ||
             pageNum === totalPages ||
-            (pageNum >= page - 2 && pageNum <= page + 2)
+            (pageNum >= page - 1 && pageNum <= page + 1) || // tighter range on mobile
+            (pageNum >= page - 2 &&
+              pageNum <= page + 2 &&
+              window.innerWidth >= 640)
           ) {
             return (
               <button
                 key={pageNum}
                 onClick={() => setPage(pageNum)}
-                className={`px-3 py-1 rounded ${
+                className={`px-2 py-1 sm:px-3 sm:py-1 rounded ${
                   page === pageNum
                     ? "bg-yellow-400 text-black"
                     : "hover:bg-yellow-400 hover:text-black"
@@ -168,17 +201,24 @@ const CoinsTable = () => {
             );
           }
 
-          if (pageNum === page - 3 || pageNum === page + 3) {
-            return <span key={pageNum}>...</span>;
+          if (pageNum === page - 2 || pageNum === page + 2) {
+            return (
+              <span key={pageNum} className="px-1 sm:px-2">
+                ...
+              </span>
+            );
           }
 
           return null;
         })}
 
+        {/* Next */}
         <button
           disabled={page === totalPages}
           onClick={() => setPage(page + 1)}
-          className="px-3 py-1 rounded hover:bg-yellow-400 hover:text-black disabled:opacity-40"
+          className="px-2 py-1 sm:px-3 sm:py-1 rounded
+               hover:bg-yellow-400 hover:text-black
+               disabled:opacity-40"
         >
           ›
         </button>
