@@ -124,23 +124,31 @@ const CoinsTable = () => {
                   </td>
 
                   {/* Price */}
+                  {/* Price */}
                   <td className="p-4 sm:text-right flex justify-between sm:table-cell">
                     <span className="sm:hidden text-gray-400">Price</span>
                     <span>
-                      {symbol} {numberWithCommas(coin.current_price.toFixed(2))}
+                      {coin.current_price
+                        ? `${symbol} ${numberWithCommas(
+                            coin.current_price.toFixed(2)
+                          )}`
+                        : "N/A"}
                     </span>
                   </td>
 
                   {/* 24h Change */}
                   <td
                     className={`p-4 sm:text-right font-medium flex justify-between sm:table-cell ${
-                      profit ? "text-green-400" : "text-red-500"
+                      coin.price_change_percentage_24h > 0
+                        ? "text-green-400"
+                        : "text-red-500"
                     }`}
                   >
                     <span className="sm:hidden text-gray-400">24h Change</span>
                     <span>
-                      {profit && "+"}
-                      {coin.price_change_percentage_24h.toFixed(2)}%
+                      {coin.price_change_percentage_24h !== null
+                        ? `${coin.price_change_percentage_24h.toFixed(2)}%`
+                        : "N/A"}
                     </span>
                   </td>
 
@@ -149,10 +157,11 @@ const CoinsTable = () => {
                     <span className="sm:hidden text-gray-400">Market Cap</span>
                     <span>
                       {symbol}{" "}
-                      {numberWithCommas(
-                        coin.market_cap.toString().slice(0, -6)
-                      )}
-                      M
+                      {coin.market_cap != null
+                        ? `${numberWithCommas(
+                            coin.market_cap.toString().slice(0, -6)
+                          )}M`
+                        : "—"}
                     </span>
                   </td>
                 </tr>
@@ -163,62 +172,70 @@ const CoinsTable = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center items-center gap-1 sm:gap-3 mt-6 sm:mt-8 text-yellow-400 text-xs sm:text-base">
+      <div className="flex justify-center items-center gap-2 mt-8 text-yellow-400">
         {/* Prev */}
         <button
           disabled={page === 1}
           onClick={() => setPage(page - 1)}
-          className="px-2 py-1 sm:px-3 sm:py-1 rounded
-               hover:bg-yellow-400 hover:text-black
-               disabled:opacity-40"
+          className="px-3 py-1 rounded hover:bg-yellow-400 hover:text-black disabled:opacity-40"
         >
           ‹
         </button>
 
-        {[...Array(totalPages)].map((_, i) => {
-          const pageNum = i + 1;
+        {/* First Page */}
+        <button
+          onClick={() => setPage(1)}
+          className={`px-3 py-1 rounded ${
+            page === 1
+              ? "bg-yellow-400 text-black"
+              : "hover:bg-yellow-400 hover:text-black"
+          }`}
+        >
+          1
+        </button>
 
-          if (
-            pageNum === 1 ||
-            pageNum === totalPages ||
-            (pageNum >= page - 1 && pageNum <= page + 1) || // tighter range on mobile
-            (pageNum >= page - 2 &&
-              pageNum <= page + 2 &&
-              window.innerWidth >= 640)
-          ) {
-            return (
-              <button
-                key={pageNum}
-                onClick={() => setPage(pageNum)}
-                className={`px-2 py-1 sm:px-3 sm:py-1 rounded ${
-                  page === pageNum
-                    ? "bg-yellow-400 text-black"
-                    : "hover:bg-yellow-400 hover:text-black"
-                }`}
-              >
-                {pageNum}
-              </button>
-            );
-          }
+        {/* Left dots */}
+        {page > 3 && <span className="px-1">...</span>}
 
-          if (pageNum === page - 2 || pageNum === page + 2) {
-            return (
-              <span key={pageNum} className="px-1 sm:px-2">
-                ...
-              </span>
-            );
-          }
+        {/* Middle pages */}
+        {Array.from({ length: totalPages }, (_, i) => i + 1)
+          .filter((p) => p > 1 && p < totalPages && Math.abs(p - page) <= 1)
+          .map((p) => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={`px-3 py-1 rounded ${
+                page === p
+                  ? "bg-yellow-400 text-black"
+                  : "hover:bg-yellow-400 hover:text-black"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
 
-          return null;
-        })}
+        {/* Right dots */}
+        {page < totalPages - 2 && <span className="px-1">...</span>}
+
+        {/* Last Page */}
+        {totalPages > 1 && (
+          <button
+            onClick={() => setPage(totalPages)}
+            className={`px-3 py-1 rounded ${
+              page === totalPages
+                ? "bg-yellow-400 text-black"
+                : "hover:bg-yellow-400 hover:text-black"
+            }`}
+          >
+            {totalPages}
+          </button>
+        )}
 
         {/* Next */}
         <button
           disabled={page === totalPages}
           onClick={() => setPage(page + 1)}
-          className="px-2 py-1 sm:px-3 sm:py-1 rounded
-               hover:bg-yellow-400 hover:text-black
-               disabled:opacity-40"
+          className="px-3 py-1 rounded hover:bg-yellow-400 hover:text-black disabled:opacity-40"
         >
           ›
         </button>
